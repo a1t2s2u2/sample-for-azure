@@ -1,9 +1,9 @@
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d");
 
-canvas.width = 3000; canvas.height = canvas.width * (canvas.clientHeight / canvas.clientWidth);
+canvas.width = 2000; canvas.height = canvas.width * (canvas.clientHeight / canvas.clientWidth);
 
-const LIMIT = 2.2;
+const LIMIT = 2;
 const SHAPE = [10, 10, 10];
 const CENTER = SHAPE.map(s => s/2);
 const SCALE = [canvas.width/SHAPE[0], canvas.height/SHAPE[1]];
@@ -38,7 +38,7 @@ class NeuralNet {
       this.neurons[String(id)] = {
         "v": 0,
         "c": {},
-        "p": SHAPE.map(s => random(s)),
+        "p": SHAPE.map(s => s*0.1 + random(s*0.8)),
       };
     }
 
@@ -74,8 +74,9 @@ class NeuralNet {
         const target = this.neurons[key2];
         const q = rotate_and_2dim(target["p"], this.θs);
         const w = neuron["c"][key2];
-        ctx.strokeStyle = `rgb(255, 255, ${round(w*255, 0)})`;
-        ctx.lineWidth = (1+w) ** 2;
+        const c = neuron["p"].map((v, i) => Math.round((120 + 240 * v / SHAPE[i]) % 255));
+        ctx.strokeStyle = `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
+        ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(p[0]*SCALE[0], p[1]*SCALE[1]);
         ctx.lineTo(q[0]*SCALE[0], q[1]*SCALE[1]);
@@ -93,8 +94,8 @@ class NeuralNet {
       axes.push([p, q]);
     });
 
-    ctx.lineWidth = 12;
-    ctx.strokeStyle = "black";
+    ctx.lineWidth = 6;
+    ctx.strokeStyle = "white";
     axes.forEach(points => {
       let p = rotate_and_2dim(points[0], this.θs);
       let q = rotate_and_2dim(points[1], this.θs);
@@ -114,4 +115,4 @@ function animate() {
 }
 
 // animate();
-setInterval(animate, 50);
+setInterval(animate, 75);
