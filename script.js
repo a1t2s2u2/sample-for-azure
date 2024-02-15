@@ -76,7 +76,7 @@ class NeuralNet {
         const w = neuron["c"][key2];
         const c = neuron["p"].map((v, i) => Math.round((120 + 240 * v / SHAPE[i]) % 255));
         ctx.strokeStyle = `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 0.8;
         ctx.beginPath();
         ctx.moveTo(p[0]*SCALE[0], p[1]*SCALE[1]);
         ctx.lineTo(q[0]*SCALE[0], q[1]*SCALE[1]);
@@ -94,7 +94,7 @@ class NeuralNet {
       axes.push([p, q]);
     });
 
-    ctx.lineWidth = 6;
+    ctx.lineWidth = 5;
     ctx.strokeStyle = "white";
     axes.forEach(points => {
       let p = rotate_and_2dim(points[0], this.θs);
