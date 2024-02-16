@@ -1,3 +1,4 @@
+const canvasContainer = document.querySelector("#canvas-container");
 const canvas = document.querySelector("#canvas");
 const ctx = canvas.getContext("2d");
 
@@ -9,6 +10,17 @@ const CENTER = SHAPE.map(s => s/2);
 const SCALE = [canvas.width/SHAPE[0], canvas.height/SHAPE[1]];
 const AXES = [[0.8, 0], [0, 0.8], [0.2, 0.2]];
 
+let axes_for_plot = [];
+SHAPE.forEach((s, i) => {
+  let p = CENTER.map((c, k) => {
+    if(i==k) {return s} else {return c};
+  });
+  let q = Array.from(p);
+  q[i] = 0;
+  axes_for_plot.push(
+    [p, q, ["white", "violet", "aqua"][i]]
+  );
+});
 
 function round(v, digit=2) {
   const a = 10**digit;
@@ -24,9 +36,13 @@ function distance(p, q) {
 }
 
 class NeuralNet {
-  constructor() {
+  constructor(θs=null) {
     this.neurons = {};
-    this.θs = [0, 0, 0];
+    if(θs) {
+      this.θs = θs;
+    } else {
+      this.θs = [0, 0, 0];
+    }
 
     // generate neurons
     for(let id=0;id<10**3;++id) {
@@ -60,8 +76,8 @@ class NeuralNet {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     // 回転の追加
     this.θs.forEach((θ, i) =>{
-      if(θ > 360) {
-        this.θs[i] = 0;
+      if(θ >= 360) {
+        this.θs[i] = θ % 360;
       } else {
         this.θs[i] += 2;
       }
@@ -76,7 +92,7 @@ class NeuralNet {
         const w = neuron["c"][key2];
         const c = neuron["p"].map((v, i) => Math.round((120 + 240 * v / SHAPE[i]) % 255));
         ctx.strokeStyle = `rgb(${c[0]}, ${c[1]}, ${c[2]})`;
-        ctx.lineWidth = 0.8;
+        ctx.lineWidth = 0.5 + w/2;
         ctx.beginPath();
         ctx.moveTo(p[0]*SCALE[0], p[1]*SCALE[1]);
         ctx.lineTo(q[0]*SCALE[0], q[1]*SCALE[1]);
@@ -84,21 +100,12 @@ class NeuralNet {
       }
     }
 
-    let axes = [];
-    SHAPE.forEach((s, i) => {
-      let p = CENTER.map((c, k) => {
-        if(i==k) {return s} else {return c};
-      });
-      let q = Array.from(p);
-      q[i] = 0;
-      axes.push([p, q]);
-    });
-
+    // 軸の描画
     ctx.lineWidth = 5;
-    ctx.strokeStyle = "white";
-    axes.forEach(points => {
-      let p = rotate_and_2dim(points[0], this.θs);
-      let q = rotate_and_2dim(points[1], this.θs);
+    axes_for_plot.forEach(plot => {
+      let p = rotate_and_2dim(plot[0], this.θs);
+      let q = rotate_and_2dim(plot[1], this.θs);
+      ctx.strokeStyle = plot[2];
       ctx.beginPath();
       ctx.moveTo(p[0]*SCALE[0], p[1]*SCALE[1]);
       ctx.lineTo(q[0]*SCALE[0], q[1]*SCALE[1]);
@@ -116,3 +123,48 @@ function animate() {
 
 // animate();
 setInterval(animate, 75);
+
+let mouseDown = false;
+let prevX, prevY;
+// 共通の関数を定義
+function handleInputStart(e) {
+  mouseDown = true;
+  prevX = e.clientX - e.target.offsetLeft;
+  prevY = e.clientY - e.target.offsetTop;
+}
+
+function handleInputEnd() {
+  mouseDown = false;
+}
+
+function handleInputMove(e) {
+  if (!mouseDown) return;
+
+  const currentX = e.clientX - e.target.offsetLeft;
+  const currentY = e.clientY - e.target.offsetTop;
+
+  const deltaX = currentX - prevX;
+  const deltaY = currentY - prevY;
+
+  prevX = currentX;
+  prevY = currentY;
+
+  [deltaX, deltaY].forEach((d, k) => {
+    AXES.forEach((axis, i) => {
+      neuralNet.θs[i] += axis[k] * d;
+    });
+  });
+}
+
+// マウスイベントのリスナーを設定
+canvas.addEventListener('mousedown', handleInputStart);
+canvas.addEventListener('mouseup', handleInputEnd);
+canvas.addEventListener('mousemove', handleInputMove);
+
+// タッチイベントのリスナーを設定
+canvas.addEventListener('touchstart', handleInputStart);
+canvas.addEventListener('touchend', handleInputEnd);
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault(); // デフォルトのスクロール動作を無効化
+  handleInputMove(e.touches[0]); // タッチイベントから最初のタッチ情報を取得して処理
+});
