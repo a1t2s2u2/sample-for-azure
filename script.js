@@ -126,45 +126,60 @@ setInterval(animate, 75);
 
 let mouseDown = false;
 let prevX, prevY;
-// 共通の関数を定義
-function handleInputStart(e) {
+
+canvas.addEventListener('mousedown', e => {
   mouseDown = true;
-  prevX = e.clientX - e.target.offsetLeft;
-  prevY = e.clientY - e.target.offsetTop;
-}
+  prevX = e.offsetX; 
+  prevY = e.offsetY;
+});
 
-function handleInputEnd() {
+canvas.addEventListener('mouseup', () => {
   mouseDown = false;
-}
+});
 
-function handleInputMove(e) {
-  if (!mouseDown) return;
-
-  const currentX = e.clientX - e.target.offsetLeft;
-  const currentY = e.clientY - e.target.offsetTop;
-
-  const deltaX = currentX - prevX;
-  const deltaY = currentY - prevY;
-
-  prevX = currentX;
-  prevY = currentY;
-
+canvas.addEventListener('mousemove', e => {
+  if(!mouseDown) return;
+  
+  const deltaX = e.offsetX - prevX;
+  const deltaY = e.offsetY - prevY;
+  
+  prevX = e.offsetX;
+  prevY = e.offsetY;
+  
   [deltaX, deltaY].forEach((d, k) => {
     AXES.forEach((axis, i) => {
       neuralNet.θs[i] += axis[k] * d;
     });
   });
-}
+});
 
-// マウスイベントのリスナーを設定
-canvas.addEventListener('mousedown', handleInputStart);
-canvas.addEventListener('mouseup', handleInputEnd);
-canvas.addEventListener('mousemove', handleInputMove);
 
-// タッチイベントのリスナーを設定
-canvas.addEventListener('touchstart', handleInputStart);
-canvas.addEventListener('touchend', handleInputEnd);
+canvas.addEventListener('touchstart', e => {
+  mouseDown = true;
+  prevX = e.touches[0].clientX - e.touches[0].target.offsetLeft;
+  prevY = e.touches[0].clientY - e.touches[0].target.offsetTop;
+});
+
+canvas.addEventListener('touchend', () => {
+  mouseDown = false;
+});
+
 canvas.addEventListener('touchmove', e => {
-  e.preventDefault(); // デフォルトのスクロール動作を無効化
-  handleInputMove(e.touches[0]); // タッチイベントから最初のタッチ情報を取得して処理
+  e.preventDefault();
+  if (!mouseDown) return;
+  
+  const currentX = e.touches[0].clientX - e.touches[0].target.offsetLeft;
+  const currentY = e.touches[0].clientY - e.touches[0].target.offsetTop;
+  
+  const deltaX = currentX - prevX;
+  const deltaY = currentY - prevY;
+  
+  prevX = currentX;
+  prevY = currentY;
+  
+  [deltaX, deltaY].forEach((d, k) => {
+    AXES.forEach((axis, i) => {
+      neuralNet.θs[i] += axis[k] * d;
+    });
+  });
 });
