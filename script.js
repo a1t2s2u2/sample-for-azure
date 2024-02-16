@@ -74,14 +74,6 @@ class NeuralNet {
   }
   loop() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // 回転の追加
-    this.θs.forEach((θ, i) =>{
-      if(θ >= 360) {
-        this.θs[i] = θ % 360;
-      } else {
-        this.θs[i] += 2;
-      }
-    });
     // ニューロンの描画
     for(let key1 in this.neurons) {
       const neuron = this.neurons[key1];
@@ -114,18 +106,29 @@ class NeuralNet {
   }
 }
 
+
+let mouseDown = false;
+let prevX, prevY;
 let neuralNet = new NeuralNet();
 
 function animate() {
+  // 回転の追加
+  if(!mouseDown) {
+    neuralNet.θs.forEach((θ, i) =>{
+      if(θ >= 360) {
+        neuralNet.θs[i] = θ % 360;
+      } else {
+        neuralNet.θs[i] += 2;
+      }
+    });
+  }
+
   neuralNet.loop();
   // requestAnimationFrame(animate);
 }
 
 // animate();
 setInterval(animate, 75);
-
-let mouseDown = false;
-let prevX, prevY;
 
 canvas.addEventListener('mousedown', e => {
   mouseDown = true;
