@@ -58,5 +58,5 @@ function rotate_and_2dim(points, θs) {
     });
   });
 
-  return p;
+  return p.map((v, i) => v*SCALE[i]);
 }

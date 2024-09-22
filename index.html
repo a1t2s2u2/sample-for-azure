@@ -3,25 +3,84 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title></title>
+  <title>obake lab</title>
+  <!-- Google Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+  <!-- Latex -->
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <div id="canvas-container">
+    <canvas id="canvas"></canvas>
+  </div>
+  <div class="content">
+    <p>
+      $$ \Delta w = -\eta \frac{\partial E}{\partial w} $$
+      Deep learning is a mathematical model that simulates the neurons responsible for biological thought processes, known as "neurons." It enables the transformation of multidimensional tensors into data that is desired or ideal using the error backpropagation method.
+    </p>
+    <!--
+      深層学習は生物の思考プロセスを担う神経細胞「ニューロン」を模擬した数理モデルで、誤差逆伝播法により多次元テンソルを期待するデータへと変換することを可能としました。
+    -->
+  </div>
 </body>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Fredoka:wdth,wght@75..125,300..700&display=swap');
+
   * {
     padding: 0; margin: 0;
+    box-sizing: border-box;
   }
+
   body {
-    background-color: rgb(21, 21, 21);
+    color: white;
+    background-color: rgb(0, 0, 0);
+    text-align: center;
+    font-family: "Fredoka", sans-serif;
+    font-size: 24px;
+    font-weight: 350;
+    line-height: 36px;
   }
+
+  #canvas-container {
+    width: 100vw; height: 100vh;
+    position: relative;
+  }
+
   #canvas {
     width: 600px; height: 600px;
+    cursor: grab;
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
   }
+  #canvas:active {
+    cursor: grabbing;
+  }
+
+  @media only screen and (max-width: 600px) {
+    body {
+      font-size: 16px;
+      line-height: 28px;
+    }
+    #canvas {
+      width: 100vw; height: 100vw;
+    }
+  }
+
+  .content {
+      padding: 200px 0;
+      width: 80%;
+      max-width: 700px;
+      text-align: justify;
+      margin: 0 auto;
+  }
+
+  .content > p {
+      margin-bottom: 80px;
+  }
+
 </style>
 <script src="./rotate.js"></script>
 <script src="./script.js"></script>
